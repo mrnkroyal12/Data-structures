@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_SIZE 5
+
+struct CircularQueue {
+    int array[MAX_SIZE];
+    int front, rear;
+};
+
+// Function to initialize the circular queue
+void initializeQueue(struct CircularQueue* queue) {
+    queue->front = -1;
+    queue->rear = -1;
+}
+
+// Function to check if the circular queue is empty
+bool isEmpty(struct CircularQueue* queue) {
+    return (queue->front == -1 && queue->rear == -1);
+}
+
+// Function to check if the circular queue is full
+bool isFull(struct CircularQueue* queue) {
+    return ((queue->rear + 1) % MAX_SIZE == queue->front);
+}
+
+// Function to enqueue an element into the circular queue
+void enqueue(struct CircularQueue* queue, int value) {
+    if (isFull(queue)) {
+        printf("Circular Queue is full. Enqueue operation failed.\n");
+        return;
+    }
+
+    if (isEmpty(queue)) {
+        queue->front = 0;
+        queue->rear = 0;
+    } else {
+        queue->rear = (queue->rear + 1) % MAX_SIZE;
+    }
+
+    queue->array[queue->rear] = value;
+    printf("Enqueued %d\n", value);
+}
+
+// Function to dequeue an element from the circular queue
+void dequeue(struct CircularQueue* queue) {
+    if (isEmpty(queue)) {
+        printf("Circular Queue is empty. Dequeue operation failed.\n");
+        return;
+    }
+
+    printf("Dequeued %d\n", queue->array[queue->front]);
+
+    if (queue->front == queue->rear) {
+        // Last element in the queue
+        initializeQueue(queue);
+    } else {
+        queue->front = (queue->front + 1) % MAX_SIZE;
+    }
+}
+
+// Function to display the elements of the circular queue
+void display(struct CircularQueue* queue) {
+    if (isEmpty(queue)) {
+        printf("Circular Queue is empty.\n");
+        return;
+    }
+
+    printf("Circular Queue elements: ");
+    int i = queue->front;
+    do {
+        printf("%d ", queue->array[i]);
+        i = (i + 1) % MAX_SIZE;
+    } while (i != (queue->rear + 1) % MAX_SIZE);
+
+    printf("\n");
+}
+
+// Function to get the front (peek) element of the circular queue
+int front(struct CircularQueue* queue) {
+    if (isEmpty(queue)) {
+        printf("Circular Queue is empty. Front operation failed.\n");
+        return -1; // Return a default value or handle it appropriately
+    }
+
+    return queue->array[queue->front];
+}
+
+// Function to get the rear element of the circular queue
+int rear(struct CircularQueue* queue) {
+    if (isEmpty(queue)) {
+        printf("Circular Queue is empty. Rear operation failed.\n");
+        return -1; // Return a default value or handle it appropriately
+    }
+
+    return queue->array[queue->rear];
+}
+
+int main() {
+    struct CircularQueue myCircularQueue;
+    initializeQueue(&myCircularQueue);
+
+    enqueue(&myCircularQueue, 10);
+    enqueue(&myCircularQueue, 20);
+    enqueue(&myCircularQueue, 30);
+    display(&myCircularQueue);
+
+    printf("Front element: %d\n", front(&myCircularQueue));
+    printf("Rear element: %d\n", rear(&myCircularQueue));
+
+    dequeue(&myCircularQueue);
+    display(&myCircularQueue);
+
+    return 0;
+}
