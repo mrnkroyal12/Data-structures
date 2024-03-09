@@ -1,0 +1,153 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a structure for a node in the queue
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Define a structure for the queue
+struct Queue {
+    struct Node* front;
+    struct Node* rear;
+};
+
+// Function to initialize the queue
+void initializeQueue(struct Queue* queue) {
+    queue->front = NULL;
+    queue->rear = NULL;
+}
+
+// Function to check if the queue is empty
+int isEmpty(struct Queue* queue) {
+    return (queue->front == NULL);
+}
+
+// Function to enqueue an element into the queue
+void enqueue(struct Queue* queue, int value) {
+    // Create a new node
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed. Enqueue operation failed.\n");
+        return;
+    }
+
+    newNode->data = value;
+    newNode->next = NULL;
+
+    // If the queue is empty, set both front and rear to the new node
+    if (isEmpty(queue)) {
+        queue->front = newNode;
+        queue->rear = newNode;
+    } else {
+        // Otherwise, update the rear and link the last node to the new node
+        queue->rear->next = newNode;
+        queue->rear = newNode;
+    }
+}
+
+// Function to dequeue an element from the queue
+int dequeue(struct Queue* queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty. Dequeue operation failed.\n");
+        return -1; // Return a default value or handle it appropriately
+    }
+
+    // Remove the front node and update the front pointer
+    struct Node* temp = queue->front;
+    queue->front = queue->front->next;
+
+    // If the queue becomes empty after dequeue, update the rear pointer as well
+    if (queue->front == NULL) {
+        queue->rear = NULL;
+    }
+
+    int value = temp->data;
+    free(temp);
+    return value;
+}
+
+// Function to display the elements of the queue
+void display(struct Queue* queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty.\n");
+        return;
+    }
+
+    printf("Queue elements: ");
+    struct Node* current = queue->front;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+
+    printf("\n");
+}
+
+// Define a structure for the stack using two queues
+struct Stack {
+    struct Queue* q1;
+    struct Queue* q2;
+};
+
+// Function to initialize the stack
+struct Stack* initializeStack() {
+    struct Stack* stack = (struct Stack*)malloc(sizeof(struct Stack));
+    stack->q1 = (struct Queue*)malloc(sizeof(struct Queue));
+    stack->q2 = (struct Queue*)malloc(sizeof(struct Queue));
+
+    initializeQueue(stack->q1);
+    initializeQueue(stack->q2);
+
+    return stack;
+}
+
+// Function to push an element onto the stack
+void push(struct Stack* stack, int value) {
+    // Enqueue the element to q2
+    enqueue(stack->q2, value);
+
+    // Move all elements from q1 to q2
+    while (!isEmpty(stack->q1)) {
+        enqueue(stack->q2, dequeue(stack->q1));
+    }
+
+    // Swap q1 and q2
+    struct Queue* temp = stack->q1;
+    stack->q1 = stack->q2;
+    stack->q2 = temp;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack* stack) {
+    if (isEmpty(stack->q1)) {
+        printf("Stack is empty. Pop operation failed.\n");
+        return -1; // Return a default value or handle it appropriately
+    }
+
+    // Dequeue from q1
+    return dequeue(stack->q1);
+}
+
+// Function to display the elements of the stack
+void displayStack(struct Stack* stack) {
+    printf("Stack elements: ");
+    display(stack->q1);
+}
+
+int main() {
+    struct Stack* myStack = initializeStack();
+
+    push(myStack, 10);
+    push(myStack, 20);
+    push(myStack, 30);
+
+    displayStack(myStack);
+
+    printf("Popped element: %d\n", pop(myStack));
+
+    displayStack(myStack);
+
+    return 0;
+}
