@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a structure for a stack node
+struct StackNode {
+    int data;
+    struct StackNode* next;
+};
+
+// Define a structure for the stack
+struct Stack {
+    struct StackNode* top;
+};
+
+// Function to initialize a stack
+void initializeStack(struct Stack* stack) {
+    stack->top = NULL;
+}
+
+// Function to check if a stack is empty
+int isStackEmpty(struct Stack* stack) {
+    return (stack->top == NULL);
+}
+
+// Function to push an element onto the stack
+void push(struct Stack* stack, int value) {
+    struct StackNode* newNode = (struct StackNode*)malloc(sizeof(struct StackNode));
+    if (newNode == NULL) {
+        printf("Memory allocation failed. Push operation failed.\n");
+        return;
+    }
+
+    newNode->data = value;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack* stack) {
+    if (isStackEmpty(stack)) {
+        printf("Stack is empty. Pop operation failed.\n");
+        return -1; // Return a default value or handle it appropriately
+    }
+
+    struct StackNode* temp = stack->top;
+    int value = temp->data;
+    stack->top = temp->next;
+    free(temp);
+
+    return value;
+}
+
+// Define a structure for the queue using two stacks
+struct QueueUsingTwoStacks {
+    struct Stack* stack1; // For enqueue operation
+    struct Stack* stack2; // For dequeue operation
+};
+
+// Function to initialize the queue
+void initializeQueue(struct QueueUsingTwoStacks* queue) {
+    queue->stack1 = (struct Stack*)malloc(sizeof(struct Stack));
+    queue->stack2 = (struct Stack*)malloc(sizeof(struct Stack));
+
+    initializeStack(queue->stack1);
+    initializeStack(queue->stack2);
+}
+
+// Function to enqueue an element into the queue
+void enqueue(struct QueueUsingTwoStacks* queue, int value) {
+    // Push the element onto stack1
+    push(queue->stack1, value);
+}
+
+// Function to dequeue an element from the queue
+int dequeue(struct QueueUsingTwoStacks* queue) {
+    // If stack2 is empty, transfer elements from stack1 to stack2
+    if (isStackEmpty(queue->stack2)) {
+        while (!isStackEmpty(queue->stack1)) {
+            push(queue->stack2, pop(queue->stack1));
+        }
+    }
+
+    // Pop the element from stack2
+    return pop(queue->stack2);
+}
+
+// Function to display the elements of the queue
+void displayQueue(struct QueueUsingTwoStacks* queue) {
+    printf("Queue elements: ");
+    // Display elements in stack2 (in reverse order of enqueue)
+    struct StackNode* current = queue->stack2->top;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+
+    // Display elements in stack1
+    current = queue->stack1->top;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+
+    printf("\n");
+}
+
+int main() {
+    struct QueueUsingTwoStacks myQueue;
+    initializeQueue(&myQueue);
+
+    enqueue(&myQueue, 10);
+    enqueue(&myQueue, 20);
+    enqueue(&myQueue, 30);
+
+    displayQueue(&myQueue);
+
+    printf("Dequeued element: %d\n", dequeue(&myQueue));
+
+    displayQueue(&myQueue);
+
+    return 0;
+}
