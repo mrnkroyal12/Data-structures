@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a structure for a node in the binary search tree
+struct Node {
+    int key;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(int key) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->key = key;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a key into the binary search tree
+struct Node* insert(struct Node* root, int key) {
+    // Base case: if the tree is empty, create a new node
+    if (root == NULL) {
+        return createNode(key);
+    }
+
+    // Otherwise, recur down the tree
+    if (key < root->key) {
+        root->left = insert(root->left, key);
+    } else if (key > root->key) {
+        root->right = insert(root->right, key);
+    }
+
+    // Return the (unchanged) node pointer
+    return root;
+}
+
+// Function to perform an inorder traversal of the binary search tree
+void inorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        inorderTraversal(root->left);
+        printf("%d ", root->key);
+        inorderTraversal(root->right);
+    }
+}
+
+// Function to search for a key in the binary search tree
+struct Node* search(struct Node* root, int key) {
+    // Base cases: root is null or the key is present at root
+    if (root == NULL || root->key == key) {
+        return root;
+    }
+
+    // Key is greater than root's key
+    if (key > root->key) {
+        return search(root->right, key);
+    }
+
+    // Key is smaller than root's key
+    return search(root->left, key);
+}
+
+int main() {
+    struct Node* root = NULL;
+
+    // Insert elements into the binary search tree
+    root = insert(root, 50);
+    insert(root, 30);
+    insert(root, 20);
+    insert(root, 40);
+    insert(root, 70);
+    insert(root, 60);
+    insert(root, 80);
+
+    // Perform an inorder traversal and print the elements
+    printf("Inorder traversal: ");
+    inorderTraversal(root);
+    printf("\n");
+
+    // Search for a key in the binary search tree
+    int keyToSearch = 60;
+    struct Node* result = search(root, keyToSearch);
+    if (result != NULL) {
+        printf("Key %d found in the tree.\n", keyToSearch);
+    } else {
+        printf("Key %d not found in the tree.\n", keyToSearch);
+    }
+
+    return 0;
+}
