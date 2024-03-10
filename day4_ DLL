@@ -1,0 +1,310 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure for a doubly linked list
+struct Node {
+    int data;
+    struct Node *prev;
+    struct Node *next;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to insert a node at the beginning of the list
+struct Node* insertAtBeginning(struct Node *head, int data) {
+    struct Node *newNode = createNode(data);
+
+    if (head == NULL) {
+        return newNode;
+    }
+
+    newNode->next = head;
+    head->prev = newNode;
+
+    return newNode;
+}
+
+// Function to insert a node at the end of the list
+struct Node* insertAtEnd(struct Node *head, int data) {
+    struct Node *newNode = createNode(data);
+
+    if (head == NULL) {
+        return newNode;
+    }
+
+    struct Node *temp = head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    temp->next = newNode;
+    newNode->prev = temp;
+
+    return head;
+}
+
+// Function to insert a node at the middle of the list
+struct Node* insertAtMiddle(struct Node *head, int data, int position) {
+    if (position < 1) {
+        printf("Invalid position\n");
+        return head;
+    }
+
+    struct Node *newNode = createNode(data);
+    struct Node *temp = head;
+
+    for (int i = 1; i < position - 1 && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Position out of bounds\n");
+        return head;
+    }
+
+    newNode->next = temp->next;
+    newNode->prev = temp;
+    
+    if (temp->next != NULL) {
+        temp->next->prev = newNode;
+    }
+
+    temp->next = newNode;
+
+    return head;
+}
+
+// Function to delete a node from the beginning of the list
+struct Node* deleteFromBeginning(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return head;
+    }
+
+    struct Node *newHead = head->next;
+
+    if (newHead != NULL) {
+        newHead->prev = NULL;
+    }
+
+    free(head);
+
+    return newHead;
+}
+
+// Function to delete a node from the end of the list
+struct Node* deleteFromEnd(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return head;
+    }
+
+    struct Node *temp = head;
+
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    if (temp->prev != NULL) {
+        temp->prev->next = NULL;
+    }
+
+    free(temp);
+
+    return head;
+}
+
+// Function to delete a node from the middle of the list
+struct Node* deleteFromMiddle(struct Node *head, int position) {
+    if (position < 1) {
+        printf("Invalid position\n");
+        return head;
+    }
+
+    struct Node *temp = head;
+
+    for (int i = 1; i < position && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Position out of bounds\n");
+        return head;
+    }
+
+    if (temp->prev != NULL) {
+        temp->prev->next = temp->next;
+    }
+
+    if (temp->next != NULL) {
+        temp->next->prev = temp->prev;
+    }
+
+    free(temp);
+
+    return head;
+}
+
+// Function to display the linked list
+void display(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+
+    struct Node *temp = head;
+
+    while (temp != NULL) {
+        printf("%d <-> ", temp->data);
+        temp = temp->next;
+    }
+
+    printf("NULL\n");
+}
+
+// Function to search for a value in the linked list
+int search(struct Node *head, int value) {
+    if (head == NULL) {
+        return 0;
+    }
+
+    struct Node *temp = head;
+
+    while (temp != NULL) {
+        if (temp->data == value) {
+            return 1; // Value found
+        }
+        temp = temp->next;
+    }
+
+    return 0; // Value not found
+}
+
+// Function to sort the linked list in ascending order
+struct Node* sort(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return head;
+    }
+
+    struct Node *i, *j;
+    int temp;
+
+    for (i = head; i != NULL; i = i->next) {
+        for (j = i->next; j != NULL; j = j->next) {
+            if (i->data > j->data) {
+                temp = i->data;
+                i->data = j->data;
+                j->data = temp;
+            }
+        }
+    }
+
+    return head;
+}
+
+// Function to find the maximum value in the linked list
+int findMax(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return -1; // Assuming -1 represents an invalid value
+    }
+
+    struct Node *temp = head;
+    int max = temp->data;
+
+    while (temp != NULL) {
+        if (temp->data > max) {
+            max = temp->data;
+        }
+        temp = temp->next;
+    }
+
+    return max;
+}
+
+// Function to find the minimum value in the linked list
+int findMin(struct Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return -1; // Assuming -1 represents an invalid value
+    }
+
+    struct Node *temp = head;
+    int min = temp->data;
+
+    while (temp != NULL) {
+        if (temp->data < min) {
+            min = temp->data;
+        }
+        temp = temp->next;
+    }
+
+    return min;
+}
+
+// Function to free the memory allocated for the linked list
+void freeList(struct Node *head) {
+    struct Node *temp;
+
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+int main() {
+    struct Node *head = NULL;
+
+    // Insertion
+    head = insertAtBeginning(head, 1);
+    head = insertAtEnd(head, 3);
+    head = insertAtMiddle(head, 2, 2);
+
+    // Display
+    printf("Original Doubly Linked List:\n");
+    display(head);
+
+    // Search
+    int searchValue = 2;
+    if (search(head, searchValue)) {
+        printf("%d found in the linked list.\n", searchValue);
+    } else {
+        printf("%d not found in the linked list.\n", searchValue);
+    }
+
+    // Sort
+    head = sort(head);
+    printf("Sorted Doubly Linked List:\n");
+    display(head);
+
+    // Find Max and Min
+    printf("Maximum value in the linked list: %d\n", findMax(head));
+    printf("Minimum value in the linked list: %d\n", findMin(head));
+
+    // Deletion
+    head = deleteFromBeginning(head);
+    head = deleteFromEnd(head);
+    head = deleteFromMiddle(head, 1);
+
+    // Display after deletion
+    printf("Doubly Linked List after Deletion:\n");
+    display(head);
+
+    // Free memory
+    freeList(head);
+
+    return 0;
+}
