@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_SIZE 100
+
+// Function to check if a character is an operator
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/');
+}
+
+// Function to get the precedence of an operator
+int getPrecedence(char op) {
+    switch (op) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        default:
+            return 0;
+    }
+}
+
+// Function to convert infix expression to postfix notation
+void infixToPostfix(char *infixExpression, char *postfixExpression) {
+    char stack[MAX_SIZE];
+    int top = -1;
+    int outputIndex = 0;
+
+    for (int i = 0; infixExpression[i] != '\0'; i++) {
+        char currentChar = infixExpression[i];
+
+        if (isalnum(currentChar)) {
+            // If the character is an operand, add it to the postfix expression
+            postfixExpression[outputIndex++] = currentChar;
+        } else if (currentChar == '(') {
+            // If the character is an opening parenthesis, push it onto the stack
+            stack[++top] = currentChar;
+        } else if (currentChar == ')') {
+            // If the character is a closing parenthesis, pop and output operators until an opening parenthesis is encountered
+            while (top >= 0 && stack[top] != '(') {
+                postfixExpression[outputIndex++] = stack[top--];
+            }
+            // Pop the opening parenthesis from the stack
+            top--;
+        } else if (isOperator(currentChar)) {
+            // If the character is an operator, pop and output operators with higher or equal precedence until the stack is empty or an operator with lower precedence is encountered
+            while (top >= 0 && getPrecedence(stack[top]) >= getPrecedence(currentChar)) {
+                postfixExpression[outputIndex++] = stack[top--];
+            }
+            // Push the current operator onto the stack
+            stack[++top] = currentChar;
+        }
+    }
+
+    // Pop and output any remaining operators from the stack
+    while (top >= 0) {
+        postfixExpression[outputIndex++] = stack[top--];
+    }
+
+    // Null-terminate the postfix expression
+    postfixExpression[outputIndex] = '\0';
+}
+
+int main() {
+    char infixExpression[] = "(a + b) * c + d";
+    char postfixExpression[MAX_SIZE];
+
+    infixToPostfix(infixExpression, postfixExpression);
+
+    printf("Infix Expression: %s\n", infixExpression);
+    printf("Postfix Expression: %s\n", postfixExpression);
+
+    return 0;
+}
