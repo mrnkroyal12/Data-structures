@@ -1,0 +1,151 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure for the Splay Tree
+struct Node {
+    int key;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(int key) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->key = key;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to right rotate the given node
+struct Node* rightRotate(struct Node* x) {
+    struct Node* y = x->left;
+    x->left = y->right;
+    y->right = x;
+    return y;
+}
+
+// Function to left rotate the given node
+struct Node* leftRotate(struct Node* x) {
+    struct Node* y = x->right;
+    x->right = y->left;
+    y->left = x;
+    return y;
+}
+
+// Function to splay the given key in the Splay Tree rooted at root
+struct Node* splay(struct Node* root, int key) {
+    if (root == NULL || root->key == key)
+        return root;
+
+    // Key lies in the left subtree
+    if (key < root->key) {
+        // Key is not present in the tree, return the original root
+        if (root->left == NULL)
+            return root;
+
+        // Zig-Zig (Left-Left)
+        if (key < root->left->key) {
+            root->left->left = splay(root->left->left, key);
+            root = rightRotate(root);
+        }
+        // Zig-Zag (Left-Right)
+        else if (key > root->left->key) {
+            root->left->right = splay(root->left->right, key);
+            if (root->left->right != NULL)
+                root->left = leftRotate(root->left);
+        }
+
+        // Right rotate the root
+        return (root->left == NULL) ? root : rightRotate(root);
+    }
+    // Key lies in the right subtree
+    else {
+        // Key is not present in the tree, return the original root
+        if (root->right == NULL)
+            return root;
+
+        // Zag-Zag (Right-Right)
+        if (key > root->right->key) {
+            root->right->right = splay(root->right->right, key);
+            root = leftRotate(root);
+        }
+        // Zag-Zig (Right-Left)
+        else if (key < root->right->key) {
+            root->right->left = splay(root->right->left, key);
+            if (root->right->left != NULL)
+                root->right = rightRotate(root->right);
+        }
+
+        // Left rotate the root
+        return (root->right == NULL) ? root : leftRotate(root);
+    }
+}
+
+// Function to insert a key into the Splay Tree
+struct Node* insert(struct Node* root, int key) {
+    if (root == NULL)
+        return createNode(key);
+
+    // Splay the root with the key to be inserted
+    root = splay(root, key);
+
+    // If the key is already present, do nothing
+    if (root->key == key)
+        return root;
+
+    // Create a new node
+    struct Node* newNode = createNode(key);
+
+    // Key is smaller than the root's key
+    if (key < root->key) {
+        newNode->right = root;
+        newNode->left = root->left;
+        root->left = NULL;
+    }
+    // Key is greater than the root's key
+    else {
+        newNode->left = root;
+        newNode->right = root->right;
+        root->right = NULL;
+    }
+
+    return newNode;
+}
+
+// Function to search for a key in the Splay Tree
+struct Node* search(struct Node* root, int key) {
+    return splay(root, key);
+}
+
+// Function to print the in-order traversal of the Splay Tree
+void inOrderTraversal(struct Node* root) {
+    if (root != NULL) {
+        inOrderTraversal(root->left);
+        printf("%d ", root->key);
+        inOrderTraversal(root->right);
+    }
+}
+
+// Driver program to test the Splay Tree
+int main() {
+    struct Node* root = NULL;
+    int keys[] = {50, 30, 70, 20, 40, 60, 80};
+
+    for (int i = 0; i < sizeof(keys) / sizeof(keys[0]); i++) {
+        root = insert(root, keys[i]);
+    }
+
+    printf("In-order traversal of the Splay Tree: ");
+    inOrderTraversal(root);
+    printf("\n");
+
+    int searchKey = 40;
+    struct Node* searchResult = search(root, searchKey);
+
+    if (searchResult != NULL && searchResult->key == searchKey)
+        printf("Key %d found in the Splay Tree\n", searchKey);
+    else
+        printf("Key %d not found in the Splay Tree\n", searchKey);
+
+    return 0;
+}
