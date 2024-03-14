@@ -1,0 +1,30 @@
+#include <stdio.h>
+void insertionSort(int arr[], int n) {
+    int i, j, temp;
+    for (i = 1; i < n; i++) {
+        temp = arr[i];
+        for (j = i; j > 0 && temp < arr[j - 1]; j--)
+            arr[j] = arr[j - 1];
+        arr[j] = temp;
+    }
+}
+void printArray(int arr[], int n) {
+    int i;
+    for (i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    printf("Gangisetty Nithin kumar\n192325048\nOriginal array:\n");
+    printArray(arr, n);
+
+    insertionSort(arr, n);
+
+    printf("Sorted array in ascending order:\n");
+    printArray(arr, n);
+
+    return 0;
+}
